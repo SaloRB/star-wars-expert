@@ -1,0 +1,16 @@
+[project]
+name = "star-wars-expert"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "beautifulsoup4>=4.14.3",
+    "colorama>=0.4.6",
+    "langchain>=1.2.6",
+    "langchain-openai>=1.1.7",
+    "langchain-qdrant>=1.1.0",
+    "langchain-text-splitters>=1.1.0",
+    "qdrant-client>=1.16.2",
+    "rich>=13.7.0",
+]
