@@ -9,3 +9,6 @@ wheels/
 # Virtual environments
 .venv
 qdrant_db
+
+# Environment variables
+.env
