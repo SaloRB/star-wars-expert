@@ -72,7 +72,7 @@ def run_chat_loop(rag_chain):
 
         for char in main_answer:
             print(char, end="", flush=True)
-            time.sleep(0.05)  # Delay de 50ms por caracter
+            time.sleep(0.03)  # Delay de 30ms por caracter
 
         # Print suggestions in yellow color if they exist
         if suggestions:
