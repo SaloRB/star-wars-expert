@@ -18,6 +18,11 @@ LLM_TEMPERATURE = 0
 RETRIEVER_K = 15  # Number of chunks to retrieve
 
 # =============================================================================
+# Conversation Memory Configuration
+# =============================================================================
+MEMORY_K = 5  # Number of conversation turns to remember
+
+# =============================================================================
 # Text Splitter Configuration
 # =============================================================================
 CHUNK_SIZE = 2500
@@ -64,6 +69,12 @@ Guidelines:
    - If the question relates to events across multiple movies, organize your answer chronologically
    - If the answer is partially in the context, provide what you can and note what's missing
    - If the answer is NOT in the scripts, respond: "I don't have information about that in the original trilogy scripts."
+
+3. **Use conversation history for context:**
+   - Reference previous questions/answers when relevant
+   - Resolve pronouns (he, she, it, they) using conversation context
+   - Build on previous answers when appropriate
+
 - After providing your answer, suggest 3 related questions the user might find interesting, formatted as:
   
   ─────────────────────────────────────────
@@ -72,6 +83,9 @@ Guidelines:
      ▸ [question]
      ▸ [question]
      ▸ [question]
+
+Conversation History:
+{chat_history}
 
 Context from Scripts:
 {context}

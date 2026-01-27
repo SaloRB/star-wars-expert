@@ -32,7 +32,8 @@ def rag_chain():
     
     console = Console(quiet=True)  # Suppress output during tests
     vectorstore = get_or_create_vectorstore(console)
-    return create_rag_chain(vectorstore)
+    chain, memory = create_rag_chain(vectorstore)
+    return chain
 
 
 class TestStarWarsQuestions:

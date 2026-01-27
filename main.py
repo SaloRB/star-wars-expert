@@ -54,11 +54,11 @@ def main():
         # Get or create vector store
         vectorstore = get_or_create_vectorstore(console)
 
-        # Create RAG chain
-        rag_chain = create_rag_chain(vectorstore)
+        # Create RAG chain with conversation memory
+        rag_chain, memory = create_rag_chain(vectorstore)
 
         # Run chat loop
-        run_chat_loop(rag_chain)
+        run_chat_loop(rag_chain, memory)
         
     except KeyboardInterrupt:
         console.print("\n[magenta]Exiting the Star Wars Movie Expert. May the Force be with you![/magenta]\n")
