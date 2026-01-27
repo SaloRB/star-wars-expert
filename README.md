@@ -40,12 +40,20 @@ The chatbot will:
 2. Create a vector database for semantic search
 3. Start an interactive chat session
 
+### Chat Commands
+
+| Command | Description |
+|---------|-------------|
+| `exit` / `quit` | Exit the chatbot |
+| `clear` | Clear conversation history |
+
 ## Features
 
 - 🎬 Uses actual movie scripts from the original trilogy
 - 🔍 Semantic search with Qdrant vector database
 - 💬 Interactive chat with streaming responses
-- 🎨 Beautiful terminal UI with colors and typing effects
+- 🧠 Conversation memory (remembers last 5 exchanges)
+- 🎨 Beautiful terminal UI with animated progress
 - ⚡ Automatic retry on network errors
 - ✅ Environment validation on startup
 
@@ -58,6 +66,7 @@ star-wars-expert/
 ├── loader.py         # Script fetching and processing
 ├── vectorstore.py    # Qdrant vector store management
 ├── chat.py           # RAG chain and chat interface
+├── ui.py             # UI components (progress display)
 └── tests/            # Unit and integration tests
 ```
 
@@ -69,9 +78,12 @@ All configuration is centralized in `config.py`:
 |---------|---------|-------------|
 | `LLM_MODEL` | `gpt-4o` | OpenAI model to use |
 | `LLM_TEMPERATURE` | `0` | Model temperature |
+| `EMBEDDING_MODEL` | `text-embedding-3-small` | Embedding model |
 | `RETRIEVER_K` | `15` | Number of chunks to retrieve |
+| `MEMORY_K` | `5` | Conversation turns to remember |
 | `CHUNK_SIZE` | `2500` | Text chunk size |
 | `CHUNK_OVERLAP` | `250` | Overlap between chunks |
+| `TYPING_DELAY` | `0.03` | Typing effect speed (seconds) |
 
 ## Testing
 
