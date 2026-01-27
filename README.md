@@ -20,12 +20,14 @@ uv sync
 ## Configuration
 
 1. Copy the example environment file:
+
 ```bash
 cp .env.example .env
 ```
 
 2. Add your OpenAI API key to `.env`:
-```
+
+```env
 OPENAI_API_KEY=your-api-key-here
 ```
 
@@ -36,6 +38,7 @@ uv run main.py
 ```
 
 The chatbot will:
+
 1. Download and process the Star Wars scripts (first run only)
 2. Create a vector database for semantic search
 3. Start an interactive chat session
@@ -97,6 +100,15 @@ uv run pytest tests/ -m integration
 # Run all tests
 uv run pytest tests/ -v
 ```
+
+## Documentation
+
+Complete documentation is available in the [`/docs`](./docs/) directory:
+
+- **[Functional Documentation](./docs/DOCUMENTACION_FUNCIONAL.md)** — User stories, flows, acceptance criteria
+- **[Technical Architecture](./docs/ARQUITECTURA_TECNICA.md)** — Components, integrations, data model
+- **[Quality & Operations](./docs/CALIDAD_Y_OPERACION.md)** — Testing, runbooks, roadmap
+- **[AI Support Knowledge Base](./docs/support/)** — FAQ, playbooks for support agents
 
 ## Requirements
 
