@@ -4,13 +4,13 @@ import sys
 import time
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.runnables import RunnableLambda
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain_qdrant import QdrantVectorStore
 from colorama import Fore, Style
 
-from config import PROMPT_TEMPLATE, LLM_MODEL, LLM_TEMPERATURE, RETRIEVER_K, MEMORY_K
+from config import PROMPT_TEMPLATE, LLM_MODEL, LLM_TEMPERATURE, RETRIEVER_K, MEMORY_K, TYPING_DELAY
 
 
 class ConversationMemory:
@@ -139,7 +139,7 @@ def run_chat_loop(rag_chain, memory: ConversationMemory):
 
         for char in main_answer:
             print(char, end="", flush=True)
-            time.sleep(0.03)  # Delay de 30ms por caracter
+            time.sleep(TYPING_DELAY)  # Configurable typing effect delay
 
         # Print suggestions in yellow color if they exist
         if suggestions:

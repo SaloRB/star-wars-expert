@@ -11,6 +11,13 @@ COLLECTION_NAME = "star_wars_scripts"
 # =============================================================================
 LLM_MODEL = "gpt-4o"
 LLM_TEMPERATURE = 0
+EMBEDDING_MODEL = "text-embedding-3-small"
+
+# =============================================================================
+# UI Configuration
+# =============================================================================
+TYPING_DELAY = 0.03  # seconds per character for typing effect
+SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 
 # =============================================================================
 # Retriever Configuration

@@ -31,7 +31,7 @@ def load_star_wars_script(url: str, movie_title: str, console: Console | None = 
         A Document containing the script content and metadata
 
     Raises:
-        RequestException: If the request fails after all retries
+        RuntimeError: If the request fails after all retries
         ValueError: If no <pre> tag is found in the HTML
     """
     last_exception = None
@@ -82,11 +82,12 @@ def load_star_wars_script(url: str, movie_title: str, console: Console | None = 
     raise RuntimeError(f"Failed to load script: {movie_title}")
 
 
-def load_and_split_scripts(console: Console) -> list[Document]:
+def load_and_split_scripts(console: Console, show_progress: bool = False) -> list[Document]:
     """Load and split all Star Wars scripts into chunks.
 
     Args:
         console: Rich console for displaying progress
+        show_progress: Whether to show individual progress bar (default: False)
 
     Returns:
         List of document chunks
@@ -100,25 +101,10 @@ def load_and_split_scripts(console: Console) -> list[Document]:
 
     all_chunks = []
 
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[cyan]{task.description}"),
-        BarColumn(),
-        TaskProgressColumn(),
-        console=console,
-    ) as progress:
-        task = progress.add_task(
-            "[cyan]Loading Star Wars scripts...", total=len(STAR_WARS_SCRIPTS))
-
-        for script in STAR_WARS_SCRIPTS:
-            progress.update(
-                task, description=f"[cyan]Loading {script['title']}...")
-            doc = load_star_wars_script(script["url"], script["title"], console)
-            chunks = script_splitter.split_documents([doc])
-            all_chunks.extend(chunks)
-            progress.advance(task)
-
-    console.print(
-        f"[green]✓[/green] Successfully loaded {len(STAR_WARS_SCRIPTS)} scripts with {len(all_chunks)} total chunks.")
+    for script in STAR_WARS_SCRIPTS:
+        doc = load_star_wars_script(script["url"], script["title"], console)
+        chunks = script_splitter.split_documents([doc])
+        all_chunks.extend(chunks)
 
     return all_chunks
+
