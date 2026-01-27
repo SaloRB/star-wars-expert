@@ -106,6 +106,39 @@ cp .env.example .env
 
 ---
 
+### Error: "OpenAI API Quota Exceeded"
+
+**Causa:** Tu cuenta de OpenAI no tiene créditos disponibles.
+
+**Solución:**
+
+1. Ve a <https://platform.openai.com/account/billing>
+2. Verifica tu saldo y agrega créditos si es necesario
+3. Reinicia la aplicación
+
+---
+
+### Error: "Invalid API Key"
+
+**Causa:** La API key en tu archivo `.env` es inválida o expiró.
+
+**Solución:**
+
+1. Ve a <https://platform.openai.com/api-keys>
+2. Crea una nueva key si es necesario
+3. Actualiza tu archivo `.env` con la nueva key
+4. Reinicia la aplicación
+
+---
+
+### Error: "Rate Limit Reached"
+
+**Causa:** Demasiadas solicitudes a OpenAI en poco tiempo.
+
+**Solución:** Espera unos segundos y reintenta tu pregunta.
+
+---
+
 ### Error: "Failed to load script"
 
 **Causa:** Problemas de conexión o IMSDB.com no disponible.

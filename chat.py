@@ -116,33 +116,62 @@ def run_chat_loop(rag_chain, memory: ConversationMemory):
         # Add user message to memory
         memory.add_user_message(query)
 
-        # Accumulate the full response
-        full_response = ""
-        for chunk in rag_chain.stream(query):
-            full_response += chunk
+        try:
+            # Accumulate the full response
+            full_response = ""
+            for chunk in rag_chain.stream(query):
+                full_response += chunk
 
-        # Add AI response to memory (without suggestions)
-        separator = "─────────────────────────────────────────"
-        if separator in full_response:
-            main_answer, suggestions = full_response.split(separator, 1)
-            suggestions = separator + suggestions
-        else:
-            main_answer = full_response
-            suggestions = ""
-        
-        # Store main answer in memory (without suggestions)
-        memory.add_ai_message(main_answer.strip())
+            # Add AI response to memory (without suggestions)
+            separator = "─────────────────────────────────────────"
+            if separator in full_response:
+                main_answer, suggestions = full_response.split(separator, 1)
+                suggestions = separator + suggestions
+            else:
+                main_answer = full_response
+                suggestions = ""
+            
+            # Store main answer in memory (without suggestions)
+            memory.add_ai_message(main_answer.strip())
 
-        # Print main answer with typing effect
-        print(f"\n{Fore.BLUE}Star Wars Movie Expert:{Style.RESET_ALL} ", end="")
-        sys.stdout.flush()
+            # Print main answer with typing effect
+            print(f"\n{Fore.BLUE}Star Wars Movie Expert:{Style.RESET_ALL} ", end="")
+            sys.stdout.flush()
 
-        for char in main_answer:
-            print(char, end="", flush=True)
-            time.sleep(TYPING_DELAY)  # Configurable typing effect delay
+            for char in main_answer:
+                print(char, end="", flush=True)
+                time.sleep(TYPING_DELAY)  # Configurable typing effect delay
 
-        # Print suggestions in yellow color if they exist
-        if suggestions:
-            print(f"\n{Fore.YELLOW}{suggestions}{Style.RESET_ALL}", end="")
+            # Print suggestions in yellow color if they exist
+            if suggestions:
+                print(f"\n{Fore.YELLOW}{suggestions}{Style.RESET_ALL}", end="")
 
-        print("\n")
+            print("\n")
+
+        except Exception as e:
+            # Remove the failed message from memory
+            if memory.messages and memory.messages[-1].content == query:
+                memory.messages.pop()
+            
+            error_str = str(e)
+            
+            # Handle OpenAI specific errors
+            if "insufficient_quota" in error_str or "exceeded your current quota" in error_str:
+                print(f"\n{Fore.RED}❌ OpenAI API Quota Exceeded{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Your OpenAI account has run out of credits.{Style.RESET_ALL}")
+                print(f"{Fore.DIM}→ Check your billing at: https://platform.openai.com/account/billing{Style.RESET_ALL}\n")
+            elif "rate_limit" in error_str.lower() or "429" in error_str:
+                print(f"\n{Fore.RED}❌ Rate Limit Reached{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Too many requests. Please wait a moment and try again.{Style.RESET_ALL}\n")
+            elif "invalid_api_key" in error_str or "401" in error_str:
+                print(f"\n{Fore.RED}❌ Invalid API Key{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}Your OpenAI API key is invalid or expired.{Style.RESET_ALL}")
+                print(f"{Fore.DIM}→ Check your key at: https://platform.openai.com/api-keys{Style.RESET_ALL}\n")
+            elif "context_length_exceeded" in error_str:
+                print(f"\n{Fore.RED}❌ Context Too Long{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}The conversation is too long. Try clearing history with 'clear'.{Style.RESET_ALL}\n")
+            else:
+                # Generic error fallback
+                print(f"\n{Fore.RED}❌ Error: {e}{Style.RESET_ALL}")
+                print(f"{Fore.DIM}If this persists, check your internet connection or try again later.{Style.RESET_ALL}\n")
+

@@ -430,6 +430,10 @@ for chunk in rag_chain.stream(query):
 | `HTTPError 5xx` | Log + retry | Sí (3x) |
 | `ValueError` (no `<pre>`) | Raise inmediato | No |
 | `RuntimeError` | Log + exit | No |
+| `OpenAI 429 Quota` | Mensaje descriptivo + URL billing | No |
+| `OpenAI 401 Invalid Key` | Mensaje descriptivo + URL api-keys | No |
+| `OpenAI Rate Limit` | Mensaje descriptivo | No |
+| `Context Length Exceeded` | Sugerir `clear` | No |
 
 ### 7.2 Mensajes de Error al Usuario
 

@@ -84,9 +84,26 @@
 ¿Existe el archivo .env?
 ├─ NO → Crear: cp .env.example .env
 └─ SÍ → ¿Tiene OPENAI_API_KEY?
-         ├─ NO → Agregar: OPENAI_API_KEY=sk-...
-         └─ SÍ → ¿La key es válida?
-                  └─ Verificar en platform.openai.com
+         └─ NO → Agregar: OPENAI_API_KEY=sk-...
+```
+
+### Error: "OpenAI API Quota Exceeded"
+
+```
+→ La cuenta de OpenAI no tiene créditos
+→ Verificar en: https://platform.openai.com/account/billing
+→ Agregar créditos o esperar reset mensual
+```
+
+### Error: "Invalid API Key"
+
+```
+¿La key está correctamente copiada en .env?
+├─ NO → Corregir formato: OPENAI_API_KEY=sk-...
+└─ SÍ → ¿La key existe en OpenAI dashboard?
+         ├─ NO → Crear nueva key
+         └─ SÍ → ¿Está activa (no revocada)?
+                  └─ NO → Crear nueva key
 ```
 
 ### Error: "Failed to load script"

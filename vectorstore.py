@@ -11,6 +11,36 @@ from loader import load_and_split_scripts
 from ui import StepProgress
 
 
+def _format_openai_error(error_str: str) -> str:
+    """Format OpenAI API errors with helpful messages.
+    
+    Args:
+        error_str: The error message string
+        
+    Returns:
+        Formatted error message with actionable guidance
+    """
+    if "insufficient_quota" in error_str or "exceeded your current quota" in error_str:
+        return (
+            "OpenAI API Quota Exceeded\n"
+            "Your OpenAI account has run out of credits.\n"
+            "→ Check your billing at: https://platform.openai.com/account/billing"
+        )
+    elif "rate_limit" in error_str.lower() or "429" in error_str:
+        return (
+            "Rate Limit Reached\n"
+            "Too many requests to OpenAI API. Please wait a moment and try again."
+        )
+    elif "invalid_api_key" in error_str or "401" in error_str:
+        return (
+            "Invalid API Key\n"
+            "Your OpenAI API key is invalid or expired.\n"
+            "→ Check your key at: https://platform.openai.com/api-keys"
+        )
+    else:
+        return str(error_str)
+
+
 def get_or_create_vectorstore(console: Console) -> QdrantVectorStore:
     """Get existing vector store or create a new one from scripts.
 
@@ -48,25 +78,30 @@ def get_or_create_vectorstore(console: Console) -> QdrantVectorStore:
         start_time = time.time()
         progress.start()
         
-        # Step 1: Load scripts
-        progress.advance()
-        all_chunks = load_and_split_scripts(console)
-        
-        # Step 2 & 3: Generate embeddings and create vector store
-        progress.advance()
-        vectorstore = QdrantVectorStore.from_documents(
-            all_chunks,
-            embedding=embeddings,
-            path=PERSIST_PATH,
-            collection_name=COLLECTION_NAME,
-        )
-        progress.advance()
-        
-        elapsed = time.time() - start_time
-        progress.complete(f"\n[green]✓[/green] Ready! [dim](loaded {len(all_chunks)} chunks in {elapsed:.1f}s)[/dim]\n")
+        try:
+            # Step 1: Load scripts
+            progress.advance()
+            all_chunks = load_and_split_scripts(console)
+            
+            # Step 2 & 3: Generate embeddings and create vector store
+            progress.advance()
+            vectorstore = QdrantVectorStore.from_documents(
+                all_chunks,
+                embedding=embeddings,
+                path=PERSIST_PATH,
+                collection_name=COLLECTION_NAME,
+            )
+            progress.advance()
+            
+            elapsed = time.time() - start_time
+            progress.complete(f"\n[green]✓[/green] Ready! [dim](loaded {len(all_chunks)} chunks in {elapsed:.1f}s)[/dim]\n")
+        except Exception as e:
+            progress.complete("")  # Stop progress display
+            raise RuntimeError(_format_openai_error(str(e))) from e
         
     except Exception as e:
         client.close()
-        raise RuntimeError(f"Failed to access vector store: {e}") from e
+        raise RuntimeError(_format_openai_error(str(e))) from e
 
     return vectorstore
+

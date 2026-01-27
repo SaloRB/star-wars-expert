@@ -179,7 +179,7 @@ uv run main.py
 
 ### 6.2 Runbook: Error de API Key
 
-**Síntoma:** `❌ Missing required environment variables`
+**Síntoma:** `❌ Invalid API Key` o `❌ Missing required environment variables`
 
 ```bash
 # 1. Verificar que .env existe
@@ -199,7 +199,23 @@ curl -H "Authorization: Bearer $OPENAI_API_KEY" \
 
 ---
 
-### 6.3 Runbook: Error de Conexión a IMSDB
+### 6.3 Runbook: OpenAI Quota Exceeded
+
+**Síntoma:** `❌ OpenAI API Quota Exceeded`
+
+```bash
+# 1. Verificar saldo de cuenta
+# → https://platform.openai.com/account/billing
+
+# 2. Si la cuenta tiene créditos, verificar límites de uso
+# → https://platform.openai.com/account/limits
+
+# 3. Si no hay créditos, agregar método de pago o esperar reset mensual
+```
+
+---
+
+### 6.4 Runbook: Error de Conexión a IMSDB
 
 **Síntoma:** `RuntimeError: Failed to load script`
 

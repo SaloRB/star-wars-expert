@@ -64,8 +64,11 @@ def main():
         console.print("\n[magenta]Exiting the Star Wars Movie Expert. May the Force be with you![/magenta]\n")
         sys.exit(0)
     except Exception as e:
-        console.print(f"\n[red]❌ Error: {e}[/red]")
-        console.print("[dim]Check your internet connection and try again.[/dim]")
+        error_msg = str(e)
+        console.print(f"\n[red]❌ {error_msg}[/red]")
+        # Only show generic hint if error doesn't already contain guidance
+        if "https://" not in error_msg and "→" not in error_msg:
+            console.print("[dim]Check your internet connection and try again.[/dim]")
         sys.exit(1)
 
 
