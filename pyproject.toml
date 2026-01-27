@@ -15,3 +15,14 @@ dependencies = [
     "qdrant-client>=1.16.2",
     "rich>=13.7.0",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "pytest-mock>=3.15.1",
+]
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",
+]

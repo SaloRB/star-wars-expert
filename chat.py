@@ -9,7 +9,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_qdrant import QdrantVectorStore
 from colorama import Fore, Style
 
-from config import PROMPT_TEMPLATE
+from config import PROMPT_TEMPLATE, LLM_MODEL, LLM_TEMPERATURE, RETRIEVER_K
 
 
 def create_rag_chain(vectorstore: QdrantVectorStore):
@@ -21,8 +21,8 @@ def create_rag_chain(vectorstore: QdrantVectorStore):
     Returns:
         Configured RAG chain
     """
-    llm = ChatOpenAI(model="gpt-4o", temperature=0, streaming=True)
-    retriever = vectorstore.as_retriever(search_kwargs={"k": 15})
+    llm = ChatOpenAI(model=LLM_MODEL, temperature=LLM_TEMPERATURE, streaming=True)
+    retriever = vectorstore.as_retriever(search_kwargs={"k": RETRIEVER_K})
     prompt = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
 
     rag_chain = (
