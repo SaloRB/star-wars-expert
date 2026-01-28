@@ -45,16 +45,16 @@ RETRY_BACKOFF_FACTOR = 2  # exponential backoff: 2s, 4s, 8s
 STAR_WARS_SCRIPTS = [
     {
         "title": "Star Wars: A New Hope",
-        "url": "https://www.imsdb.com/scripts/Star-Wars-A-New-Hope.html"
+        "url": "https://www.imsdb.com/scripts/Star-Wars-A-New-Hope.html",
     },
     {
         "title": "Star Wars: The Empire Strikes Back",
-        "url": "https://www.imsdb.com/scripts/Star-Wars-The-Empire-Strikes-Back.html"
+        "url": "https://www.imsdb.com/scripts/Star-Wars-The-Empire-Strikes-Back.html",
     },
     {
         "title": "Star Wars: Return of the Jedi",
-        "url": "https://www.imsdb.com/scripts/Star-Wars-Return-of-the-Jedi.html"
-    }
+        "url": "https://www.imsdb.com/scripts/Star-Wars-Return-of-the-Jedi.html",
+    },
 ]
 
 PROMPT_TEMPLATE = """You are an expert Star Wars Movie Script Analyst with deep knowledge of the original trilogy scripts.

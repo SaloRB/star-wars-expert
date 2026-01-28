@@ -2,54 +2,55 @@
 
 import sys
 import time
-from langchain_openai import ChatOpenAI
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnableLambda
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.messages import HumanMessage, AIMessage
-from langchain_qdrant import QdrantVectorStore
-from colorama import Fore, Style
 
-from config import PROMPT_TEMPLATE, LLM_MODEL, LLM_TEMPERATURE, RETRIEVER_K, MEMORY_K, TYPING_DELAY
+from colorama import Fore, Style
+from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnableLambda
+from langchain_openai import ChatOpenAI
+from langchain_qdrant import QdrantVectorStore
+
+from config import LLM_MODEL, LLM_TEMPERATURE, MEMORY_K, PROMPT_TEMPLATE, RETRIEVER_K, TYPING_DELAY
 
 
 class ConversationMemory:
     """Simple conversation memory that stores the last K exchanges."""
-    
+
     def __init__(self, k: int = 5):
         self.k = k
         self.messages: list[HumanMessage | AIMessage] = []
-    
+
     def add_user_message(self, content: str):
         """Add a user message to memory."""
         self.messages.append(HumanMessage(content=content))
         self._trim()
-    
+
     def add_ai_message(self, content: str):
         """Add an AI message to memory."""
         self.messages.append(AIMessage(content=content))
         self._trim()
-    
+
     def _trim(self):
         """Keep only the last K exchanges (2K messages)."""
         max_messages = self.k * 2
         if len(self.messages) > max_messages:
             self.messages = self.messages[-max_messages:]
-    
+
     def get_history_string(self) -> str:
         """Get conversation history as a formatted string."""
         if not self.messages:
             return "No previous conversation."
-        
+
         history_parts = []
         for msg in self.messages:
             role = "User" if isinstance(msg, HumanMessage) else "Assistant"
             # Truncate long messages to save context
             content = msg.content[:500] + "..." if len(msg.content) > 500 else msg.content
             history_parts.append(f"{role}: {content}")
-        
+
         return "\n".join(history_parts)
-    
+
     def clear(self):
         """Clear conversation history."""
         self.messages = []
@@ -67,25 +68,16 @@ def create_rag_chain(vectorstore: QdrantVectorStore):
     llm = ChatOpenAI(model=LLM_MODEL, temperature=LLM_TEMPERATURE, streaming=True)
     retriever = vectorstore.as_retriever(search_kwargs={"k": RETRIEVER_K})
     prompt = ChatPromptTemplate.from_template(PROMPT_TEMPLATE)
-    
+
     # Create conversation memory
     memory = ConversationMemory(k=MEMORY_K)
-    
+
     def get_context_and_history(query: str) -> dict:
         """Get context from retriever and history from memory."""
         context = retriever.invoke(query)
-        return {
-            "context": context,
-            "chat_history": memory.get_history_string(),
-            "question": query
-        }
+        return {"context": context, "chat_history": memory.get_history_string(), "question": query}
 
-    rag_chain = (
-        RunnableLambda(get_context_and_history)
-        | prompt
-        | llm
-        | StrOutputParser()
-    )
+    rag_chain = RunnableLambda(get_context_and_history) | prompt | llm | StrOutputParser()
 
     return rag_chain, memory
 
@@ -97,17 +89,18 @@ def run_chat_loop(rag_chain, memory: ConversationMemory):
         rag_chain: The configured RAG chain
         memory: The conversation memory
     """
-    print(f"\n{Fore.YELLOW}{'='*70}")
+    print(f"\n{Fore.YELLOW}{'=' * 70}")
     print(f"{Fore.YELLOW}🌟  The Star Wars Movie Expert is ready to answer your questions  🌟")
-    print(f"{Fore.YELLOW}{'='*70}{Style.RESET_ALL}\n")
+    print(f"{Fore.YELLOW}{'=' * 70}{Style.RESET_ALL}\n")
 
     while True:
         query = input(f"{Fore.GREEN}You: {Style.RESET_ALL}")
         if query.lower() in ["exit", "quit"]:
             print(
-                f"\n{Fore.MAGENTA}Exiting the Star Wars Movie Expert. May the Force be with you!{Style.RESET_ALL}\n")
+                f"\n{Fore.MAGENTA}Exiting the Star Wars Movie Expert. May the Force be with you!{Style.RESET_ALL}\n"
+            )
             break
-        
+
         if query.lower() == "clear":
             memory.clear()
             print(f"{Fore.CYAN}Conversation history cleared.{Style.RESET_ALL}\n")
@@ -130,7 +123,7 @@ def run_chat_loop(rag_chain, memory: ConversationMemory):
             else:
                 main_answer = full_response
                 suggestions = ""
-            
+
             # Store main answer in memory (without suggestions)
             memory.add_ai_message(main_answer.strip())
 
@@ -152,26 +145,35 @@ def run_chat_loop(rag_chain, memory: ConversationMemory):
             # Remove the failed message from memory
             if memory.messages and memory.messages[-1].content == query:
                 memory.messages.pop()
-            
+
             error_str = str(e)
-            
+
             # Handle OpenAI specific errors
             if "insufficient_quota" in error_str or "exceeded your current quota" in error_str:
                 print(f"\n{Fore.RED}❌ OpenAI API Quota Exceeded{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}Your OpenAI account has run out of credits.{Style.RESET_ALL}")
-                print(f"{Fore.DIM}→ Check your billing at: https://platform.openai.com/account/billing{Style.RESET_ALL}\n")
+                print(
+                    f"{Fore.DIM}→ Check your billing at: https://platform.openai.com/account/billing{Style.RESET_ALL}\n"
+                )
             elif "rate_limit" in error_str.lower() or "429" in error_str:
                 print(f"\n{Fore.RED}❌ Rate Limit Reached{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}Too many requests. Please wait a moment and try again.{Style.RESET_ALL}\n")
+                print(
+                    f"{Fore.YELLOW}Too many requests. Please wait a moment and try again.{Style.RESET_ALL}\n"
+                )
             elif "invalid_api_key" in error_str or "401" in error_str:
                 print(f"\n{Fore.RED}❌ Invalid API Key{Style.RESET_ALL}")
                 print(f"{Fore.YELLOW}Your OpenAI API key is invalid or expired.{Style.RESET_ALL}")
-                print(f"{Fore.DIM}→ Check your key at: https://platform.openai.com/api-keys{Style.RESET_ALL}\n")
+                print(
+                    f"{Fore.DIM}→ Check your key at: https://platform.openai.com/api-keys{Style.RESET_ALL}\n"
+                )
             elif "context_length_exceeded" in error_str:
                 print(f"\n{Fore.RED}❌ Context Too Long{Style.RESET_ALL}")
-                print(f"{Fore.YELLOW}The conversation is too long. Try clearing history with 'clear'.{Style.RESET_ALL}\n")
+                print(
+                    f"{Fore.YELLOW}The conversation is too long. Try clearing history with 'clear'.{Style.RESET_ALL}\n"
+                )
             else:
                 # Generic error fallback
                 print(f"\n{Fore.RED}❌ Error: {e}{Style.RESET_ALL}")
-                print(f"{Fore.DIM}If this persists, check your internet connection or try again later.{Style.RESET_ALL}\n")
-
+                print(
+                    f"{Fore.DIM}If this persists, check your internet connection or try again later.{Style.RESET_ALL}\n"
+                )

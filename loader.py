@@ -1,21 +1,21 @@
 """Script loader for fetching and processing Star Wars scripts."""
 
 import time
+
 import requests
-from requests.exceptions import RequestException, Timeout, ConnectionError, HTTPError
 from bs4 import BeautifulSoup
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
+from requests.exceptions import ConnectionError, HTTPError, RequestException, Timeout
 from rich.console import Console
 
 from config import (
-    STAR_WARS_SCRIPTS,
-    REQUEST_TIMEOUT,
-    MAX_RETRIES,
-    RETRY_BACKOFF_FACTOR,
-    CHUNK_SIZE,
     CHUNK_OVERLAP,
+    CHUNK_SIZE,
+    MAX_RETRIES,
+    REQUEST_TIMEOUT,
+    RETRY_BACKOFF_FACTOR,
+    STAR_WARS_SCRIPTS,
 )
 
 
@@ -34,50 +34,51 @@ def load_star_wars_script(url: str, movie_title: str, console: Console | None = 
         RuntimeError: If the request fails after all retries
         ValueError: If no <pre> tag is found in the HTML
     """
-    last_exception = None
-    
+
     for attempt in range(1, MAX_RETRIES + 1):
         try:
             response = requests.get(url, timeout=REQUEST_TIMEOUT)
             response.raise_for_status()  # Raise exception for 4xx/5xx status codes
-            
+
             soup = BeautifulSoup(response.content, "html.parser")
-            pre_tag = soup.find('pre')
-            
+            pre_tag = soup.find("pre")
+
             if pre_tag is None:
                 raise ValueError(f"No <pre> tag found in the HTML content for {movie_title}")
-            
+
             script_raw = pre_tag.get_text()
             return Document(page_content=script_raw, metadata={"title": movie_title})
-            
-        except Timeout as e:
-            last_exception = e
+
+        except Timeout:
             if console:
-                console.print(f"[yellow]⚠ Timeout loading {movie_title} (attempt {attempt}/{MAX_RETRIES})[/yellow]")
-                
-        except ConnectionError as e:
-            last_exception = e
+                console.print(
+                    f"[yellow]⚠ Timeout loading {movie_title} (attempt {attempt}/{MAX_RETRIES})[/yellow]"
+                )
+
+        except ConnectionError:
             if console:
-                console.print(f"[yellow]⚠ Connection error loading {movie_title} (attempt {attempt}/{MAX_RETRIES})[/yellow]")
-                
+                console.print(
+                    f"[yellow]⚠ Connection error loading {movie_title} (attempt {attempt}/{MAX_RETRIES})[/yellow]"
+                )
+
         except HTTPError as e:
-            last_exception = e
             if console:
                 console.print(f"[red]✗ HTTP {e.response.status_code} error for {movie_title}[/red]")
             # Don't retry on 4xx client errors
             if e.response.status_code < 500:
                 raise
-                
-        except RequestException as e:
-            last_exception = e
+
+        except RequestException:
             if console:
-                console.print(f"[yellow]⚠ Request error loading {movie_title} (attempt {attempt}/{MAX_RETRIES})[/yellow]")
-        
+                console.print(
+                    f"[yellow]⚠ Request error loading {movie_title} (attempt {attempt}/{MAX_RETRIES})[/yellow]"
+                )
+
         # Wait before retrying (exponential backoff)
         if attempt < MAX_RETRIES:
-            wait_time = RETRY_BACKOFF_FACTOR ** attempt
+            wait_time = RETRY_BACKOFF_FACTOR**attempt
             time.sleep(wait_time)
-    
+
     # All retries exhausted
     raise RuntimeError(f"Failed to load script: {movie_title}")
 
@@ -96,7 +97,7 @@ def load_and_split_scripts(console: Console, show_progress: bool = False) -> lis
         chunk_size=CHUNK_SIZE,
         chunk_overlap=CHUNK_OVERLAP,
         add_start_index=True,
-        separators=["\nINT.", "\nEXT.", "\n\n", "\n", " ", ""]
+        separators=["\nINT.", "\nEXT.", "\n\n", "\n", " ", ""],
     )
 
     all_chunks = []
@@ -107,4 +108,3 @@ def load_and_split_scripts(console: Console, show_progress: bool = False) -> lis
         all_chunks.extend(chunks)
 
     return all_chunks
-

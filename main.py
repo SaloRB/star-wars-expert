@@ -2,12 +2,13 @@
 
 import os
 import sys
-from dotenv import load_dotenv
+
 from colorama import init
+from dotenv import load_dotenv
 from rich.console import Console
 
-from vectorstore import get_or_create_vectorstore
 from chat import create_rag_chain, run_chat_loop
+from vectorstore import get_or_create_vectorstore
 
 # Load environment variables from .env file
 load_dotenv()
@@ -15,26 +16,26 @@ load_dotenv()
 
 def validate_environment() -> bool:
     """Validate that all required environment variables are set.
-    
+
     Returns:
         True if all required variables are set, False otherwise
     """
     required_vars = {
         "OPENAI_API_KEY": "Required for OpenAI API access. Get it from https://platform.openai.com/api-keys"
     }
-    
+
     missing_vars = []
     for var, description in required_vars.items():
         if not os.getenv(var):
             missing_vars.append(f"  • {var}: {description}")
-    
+
     if missing_vars:
         print("\n❌ Missing required environment variables:\n")
         print("\n".join(missing_vars))
         print("\n💡 Tip: Copy .env.example to .env and fill in your values:\n")
         print("   cp .env.example .env\n")
         return False
-    
+
     return True
 
 
@@ -59,9 +60,11 @@ def main():
 
         # Run chat loop
         run_chat_loop(rag_chain, memory)
-        
+
     except KeyboardInterrupt:
-        console.print("\n[magenta]Exiting the Star Wars Movie Expert. May the Force be with you![/magenta]\n")
+        console.print(
+            "\n[magenta]Exiting the Star Wars Movie Expert. May the Force be with you![/magenta]\n"
+        )
         sys.exit(0)
     except Exception as e:
         error_msg = str(e)

@@ -1,19 +1,18 @@
 """Tests for the config module."""
 
-import pytest
 from config import (
-    PERSIST_PATH,
+    CHUNK_OVERLAP,
+    CHUNK_SIZE,
     COLLECTION_NAME,
     LLM_MODEL,
     LLM_TEMPERATURE,
-    RETRIEVER_K,
-    CHUNK_SIZE,
-    CHUNK_OVERLAP,
-    REQUEST_TIMEOUT,
     MAX_RETRIES,
+    PERSIST_PATH,
+    PROMPT_TEMPLATE,
+    REQUEST_TIMEOUT,
+    RETRIEVER_K,
     RETRY_BACKOFF_FACTOR,
     STAR_WARS_SCRIPTS,
-    PROMPT_TEMPLATE,
 )
 
 
@@ -32,7 +31,7 @@ class TestConfigConstants:
 
     def test_llm_model_is_valid(self):
         """Test that LLM_MODEL is a non-empty string.
-        
+
         Note: Actual model validation is done by the OpenAI API at runtime.
         See https://platform.openai.com/docs/models for valid models.
         """
