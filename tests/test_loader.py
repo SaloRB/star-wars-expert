@@ -100,14 +100,7 @@ class TestLoadAndSplitScripts:
         )
 
         console = Mock()
-        # Mock the Progress context manager
-        with patch("loader.Progress") as mock_progress:
-            mock_progress.return_value.__enter__ = Mock(
-                return_value=Mock(add_task=Mock(return_value=1), update=Mock(), advance=Mock())
-            )
-            mock_progress.return_value.__exit__ = Mock(return_value=False)
-
-            result = load_and_split_scripts(console)
+        result = load_and_split_scripts(console)
 
         assert len(result) > 0
         assert all(isinstance(doc, Document) for doc in result)
