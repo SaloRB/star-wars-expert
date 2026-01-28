@@ -1,5 +1,7 @@
 # 🌟 Star Wars Expert
 
+[![CI](https://github.com/SaloRB/star-wars-expert/actions/workflows/ci.yml/badge.svg)](https://github.com/SaloRB/star-wars-expert/actions/workflows/ci.yml)
+
 A RAG-powered chatbot that answers questions about the Star Wars original trilogy using actual movie scripts.
 
 ## Description
@@ -45,10 +47,10 @@ The chatbot will:
 
 ### Chat Commands
 
-| Command | Description |
-|---------|-------------|
-| `exit` / `quit` | Exit the chatbot |
-| `clear` | Clear conversation history |
+| Command         | Description                |
+| --------------- | -------------------------- |
+| `exit` / `quit` | Exit the chatbot           |
+| `clear`         | Clear conversation history |
 
 ## Features
 
@@ -77,16 +79,16 @@ star-wars-expert/
 
 All configuration is centralized in `config.py`:
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `LLM_MODEL` | `gpt-4o` | OpenAI model to use |
-| `LLM_TEMPERATURE` | `0` | Model temperature |
-| `EMBEDDING_MODEL` | `text-embedding-3-small` | Embedding model |
-| `RETRIEVER_K` | `15` | Number of chunks to retrieve |
-| `MEMORY_K` | `5` | Conversation turns to remember |
-| `CHUNK_SIZE` | `2500` | Text chunk size |
-| `CHUNK_OVERLAP` | `250` | Overlap between chunks |
-| `TYPING_DELAY` | `0.03` | Typing effect speed (seconds) |
+| Setting           | Default                  | Description                    |
+| ----------------- | ------------------------ | ------------------------------ |
+| `LLM_MODEL`       | `gpt-4o`                 | OpenAI model to use            |
+| `LLM_TEMPERATURE` | `0`                      | Model temperature              |
+| `EMBEDDING_MODEL` | `text-embedding-3-small` | Embedding model                |
+| `RETRIEVER_K`     | `15`                     | Number of chunks to retrieve   |
+| `MEMORY_K`        | `5`                      | Conversation turns to remember |
+| `CHUNK_SIZE`      | `2500`                   | Text chunk size                |
+| `CHUNK_OVERLAP`   | `250`                    | Overlap between chunks         |
+| `TYPING_DELAY`    | `0.03`                   | Typing effect speed (seconds)  |
 
 ## Testing
 

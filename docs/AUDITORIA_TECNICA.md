@@ -278,13 +278,13 @@ star-wars-expert/
 
 ### 4.4 Linting/Formatting
 
-| Herramienta | Configurada | Estado         |
-| ----------- | ----------- | -------------- |
-| Ruff        | ❌          | No configurado |
-| Black       | ❌          | No configurado |
-| isort       | ❌          | No configurado |
-| mypy        | ❌          | No configurado |
-| pre-commit  | ❌          | No configurado |
+| Herramienta | Configurada | Estado                           |
+| ----------- | ----------- | -------------------------------- |
+| Ruff        | ✅          | Configurado (linter + formatter) |
+| Black       | ❌          | No necesario (usa Ruff)          |
+| isort       | ❌          | No necesario (usa Ruff)          |
+| mypy        | ❌          | No configurado                   |
+| pre-commit  | ❌          | No configurado                   |
 
 ### 4.5 Code Smells
 
@@ -350,8 +350,8 @@ star-wars-expert/
 
 | Aspecto          | Estado            |
 | ---------------- | ----------------- |
-| GitHub Actions   | ❌ No configurado |
-| Pipelines        | ❌ No existen     |
+| GitHub Actions   | ✅ Configurado    |
+| Pipelines        | ✅ Lint + Test    |
 | Hooks pre-commit | ❌ No configurado |
 
 ### 6.3 Containerización
@@ -409,10 +409,10 @@ qdrant_db
 
 ### 7.5 Dependencias de Red
 
-| Servicio   | Comunicación                               | Riesgo                                                                 |
-| ---------- | ------------------------------------------ | ---------------------------------------------------------------------- |
-| IMSDB.com  | Según `STAR_WARS_SCRIPTS` en `config.py`   | Depende del protocolo configurado: usar siempre HTTPS para evitar MITM |
-| OpenAI API | HTTPS                                      | 🟢 Bajo                                                                 |
+| Servicio   | Comunicación                             | Riesgo                                                                 |
+| ---------- | ---------------------------------------- | ---------------------------------------------------------------------- |
+| IMSDB.com  | Según `STAR_WARS_SCRIPTS` en `config.py` | Depende del protocolo configurado: usar siempre HTTPS para evitar MITM |
+| OpenAI API | HTTPS                                    | 🟢 Bajo                                                                |
 
 ---
 
@@ -482,30 +482,30 @@ qdrant_db
 
 ### 10.1 Lista Priorizada
 
-| ID   | Problema                              | Severidad | Impacto                  | Esfuerzo  |
-| ---- | ------------------------------------- | --------- | ------------------------ | --------- |
-| P-01 | Sin CI/CD pipeline                    | 🟠 Alto   | Riesgo de regresiones    | 2-4 horas |
-| P-02 | Sin linting/formatting configurado    | 🟡 Medio  | Inconsistencia de estilo | 1 hora    |
-| P-03 | Falta validación de input del usuario | 🟡 Medio  | Posible token overflow   | 2 horas   |
-| P-04 | Código duplicado en manejo de errores | 🟡 Medio  | Mantenibilidad           | 1 hora    |
-| P-05 | Sin tests para `ui.py` y `main.py`    | 🟡 Medio  | Cobertura incompleta     | 3 horas   |
-| P-06 | Sin Dockerfile                        | 🟢 Bajo   | Portabilidad limitada    | 1 hora    |
-| P-07 | IMSDB sin fallback/cache local        | 🟢 Bajo   | Single point of failure  | 2 horas   |
-| P-08 | Description vacía en pyproject.toml   | 🟢 Bajo   | Metadata incompleta      | 5 min     |
+| ID   | Problema                               | Severidad   | Impacto                    | Esfuerzo |
+| ---- | -------------------------------------- | ----------- | -------------------------- | -------- |
+| P-01 | ~~Sin CI/CD pipeline~~                 | ✅ Resuelto | GitHub Actions configurado | -        |
+| P-02 | ~~Sin linting/formatting configurado~~ | ✅ Resuelto | Ruff configurado           | -        |
+| P-03 | Falta validación de input del usuario  | 🟡 Medio    | Posible token overflow     | 2 horas  |
+| P-04 | Código duplicado en manejo de errores  | 🟡 Medio    | Mantenibilidad             | 1 hora   |
+| P-05 | Sin tests para `ui.py` y `main.py`     | 🟡 Medio    | Cobertura incompleta       | 3 horas  |
+| P-06 | Sin Dockerfile                         | 🟢 Bajo     | Portabilidad limitada      | 1 hora   |
+| P-07 | IMSDB sin fallback/cache local         | 🟢 Bajo     | Single point of failure    | 2 horas  |
+| P-08 | Description vacía en pyproject.toml    | 🟢 Bajo     | Metadata incompleta        | 5 min    |
 
 ### 10.2 Detalles
 
-#### 🟠 P-01: Sin CI/CD Pipeline
+#### ✅ P-01: CI/CD Pipeline — RESUELTO
 
-**Ubicación:** `.github/` solo tiene copilot-instructions.md  
-**Riesgo:** Commits pueden romper tests sin que nadie se entere  
-**Solución:** Agregar GitHub Actions workflow
+**Solución implementada:** GitHub Actions workflow en `.github/workflows/ci.yml`  
+**Jobs:** Lint (Ruff) → Test (pytest unit tests)  
+**Trigger:** Push y Pull Request a `main`
 
-#### 🟡 P-02: Sin Linting Configurado
+#### ✅ P-02: Linting Configurado — RESUELTO
 
-**Ubicación:** pyproject.toml  
-**Riesgo:** Inconsistencia de estilo entre contribuidores  
-**Solución:** Agregar ruff + pre-commit
+**Solución implementada:** Ruff configurado en `pyproject.toml`  
+**Reglas:** E, F, I, UP, B, SIM  
+**Comandos:** `uv run ruff check .` y `uv run ruff format .`
 
 #### 🟡 P-03: Sin Validación de Input
 
@@ -633,14 +633,14 @@ def load_star_wars_script(url, title, console=None):
 | --------------------- | ---------- | ---------------------------------------- |
 | **Estructura**        | 9/10       | Organización ejemplar                    |
 | **Arquitectura**      | 9/10       | Patrones RAG bien aplicados              |
-| **Calidad de Código** | 8/10       | Falta linting, código duplicado menor    |
+| **Calidad de Código** | 9/10       | Ruff configurado, código limpio          |
 | **Tests**             | 7/10       | Buenos tests, gaps en ui.py/main.py      |
 | **Dependencias**      | 9/10       | Actualizadas, bien gestionadas           |
-| **DevOps**            | 5/10       | Sin CI/CD ni containerización            |
+| **DevOps**            | 8/10       | CI/CD con GitHub Actions                 |
 | **Seguridad**         | 7/10       | Buenas prácticas, falta validación input |
 | **Performance**       | 8/10       | Caché efectiva, streaming                |
 | **Documentación**     | 10/10      | Excepcional                              |
-| **PROMEDIO**          | **8.0/10** |                                          |
+| **PROMEDIO**          | **8.4/10** |                                          |
 
 ### 12.2 Roadmap Visual
 
@@ -659,20 +659,22 @@ Semana 1-2 (Inmediato)         Mes 1 (Corto)              Mes 2-3 (Mediano)
 
 | ✅ Fortalezas                      | ❌ Debilidades               |
 | ---------------------------------- | ---------------------------- |
-| Documentación excepcional (10/10)  | Sin CI/CD pipeline           |
-| Arquitectura RAG bien implementada | Sin linting/formatting       |
-| Código modular y bien organizado   | Tests incompletos (ui, main) |
-| Configuración centralizada         | Sin containerización         |
-| Manejo de errores descriptivo      | Código duplicado menor       |
-| Dependencias actualizadas          | Sin validación de input      |
+| Documentación excepcional (10/10)  | Tests incompletos (ui, main) |
+| Arquitectura RAG bien implementada | Sin containerización         |
+| Código modular y bien organizado   | Código duplicado menor       |
+| Configuración centralizada         | Sin validación de input      |
+| Manejo de errores descriptivo      |                              |
+| Dependencias actualizadas          |                              |
+| CI/CD con GitHub Actions           |                              |
+| Linting con Ruff                   |                              |
 
 ### 12.4 Conclusión
 
 **Star Wars Expert** es un proyecto de alta calidad para su propósito (PoC/personal). La arquitectura RAG está bien implementada siguiendo patrones idiomáticos de LangChain, y la documentación es excepcional.
 
-Las áreas de mejora principales son la infraestructura de DevOps (CI/CD) y la configuración de herramientas de calidad de código (linting). Para un proyecto productivo, se recomienda priorizar P-01 (CI/CD) y P-02 (linting) esta semana.
+Con la integración de CI/CD (GitHub Actions) y Ruff como linter/formatter, el proyecto ahora cuenta con una base sólida de automatización. Las áreas de mejora pendientes son la containerización (Dockerfile) y la validación de input del usuario.
 
-**Calificación global: 8.0/10** — Listo para demo/PoC, requiere mejoras de DevOps para producción.
+**Calificación global: 8.4/10** — Listo para demo/PoC con CI/CD integrado. Pendiente: containerización y validación de input.
 
 ---
 

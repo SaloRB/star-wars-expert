@@ -44,11 +44,23 @@ star-wars-expert/
 ├── vectorstore.py       # Gestión de Qdrant vector store
 ├── chat.py              # RAG chain y loop de conversación
 ├── ui.py                # Componentes visuales (progress, spinners)
+├── .github/
+│   ├── copilot-instructions.md  # Instrucciones para AI assistants
+│   └── workflows/
+│       └── ci.yml       # Pipeline CI/CD (lint + test)
 ├── tests/               # Tests unitarios e integración
 │   ├── __init__.py
 │   ├── test_config.py
 │   ├── test_loader.py
 │   └── test_rag_integration.py
+├── docs/                # Documentación del proyecto
+│   ├── INDEX.md
+│   ├── ARQUITECTURA_TECNICA.md
+│   ├── AUDITORIA_TECNICA.md
+│   ├── CALIDAD_Y_OPERACION.md
+│   ├── DOCUMENTACION_FUNCIONAL.md
+│   ├── SUPUESTOS_Y_DECISIONES_TOMADAS.md
+│   └── support/         # Base de conocimiento para soporte AI
 ├── qdrant_db/           # Vector store persistido (generado)
 ├── .env                 # Variables de entorno (no versionado)
 ├── .env.example         # Template de variables
@@ -74,10 +86,10 @@ def main():
     run_chat_loop(rag_chain, memory)                  # Loop interactivo
 ```
 
-| Función | Descripción |
-|---------|-------------|
+| Función                  | Descripción                                |
+| ------------------------ | ------------------------------------------ |
 | `validate_environment()` | Verifica `OPENAI_API_KEY` antes de iniciar |
-| `main()` | Orquesta init → chat → cleanup |
+| `main()`                 | Orquesta init → chat → cleanup             |
 
 **Manejo de errores:**
 
@@ -92,17 +104,17 @@ def main():
 
 #### Categorías de Configuración
 
-| Categoría | Constantes |
-|-----------|------------|
-| Vector Store | `PERSIST_PATH`, `COLLECTION_NAME` |
-| LLM | `LLM_MODEL`, `LLM_TEMPERATURE`, `EMBEDDING_MODEL` |
-| Retriever | `RETRIEVER_K` |
-| Memory | `MEMORY_K` |
-| Text Splitting | `CHUNK_SIZE`, `CHUNK_OVERLAP` |
-| HTTP | `REQUEST_TIMEOUT`, `MAX_RETRIES`, `RETRY_BACKOFF_FACTOR` |
-| UI | `TYPING_DELAY`, `SPINNER_FRAMES` |
-| Data | `STAR_WARS_SCRIPTS` (lista de URLs) |
-| Prompts | `PROMPT_TEMPLATE` |
+| Categoría      | Constantes                                               |
+| -------------- | -------------------------------------------------------- |
+| Vector Store   | `PERSIST_PATH`, `COLLECTION_NAME`                        |
+| LLM            | `LLM_MODEL`, `LLM_TEMPERATURE`, `EMBEDDING_MODEL`        |
+| Retriever      | `RETRIEVER_K`                                            |
+| Memory         | `MEMORY_K`                                               |
+| Text Splitting | `CHUNK_SIZE`, `CHUNK_OVERLAP`                            |
+| HTTP           | `REQUEST_TIMEOUT`, `MAX_RETRIES`, `RETRY_BACKOFF_FACTOR` |
+| UI             | `TYPING_DELAY`, `SPINNER_FRAMES`                         |
+| Data           | `STAR_WARS_SCRIPTS` (lista de URLs)                      |
+| Prompts        | `PROMPT_TEMPLATE`                                        |
 
 #### Valores por Defecto
 
@@ -138,10 +150,10 @@ RETRY_BACKOFF_FACTOR = 2
 
 #### Funciones Principales
 
-| Función | Entrada | Salida |
-|---------|---------|--------|
-| `load_star_wars_script()` | URL, título | `Document` |
-| `load_and_split_scripts()` | Console | `list[Document]` |
+| Función                    | Entrada     | Salida           |
+| -------------------------- | ----------- | ---------------- |
+| `load_star_wars_script()`  | URL, título | `Document`       |
+| `load_and_split_scripts()` | Console     | `list[Document]` |
 
 #### Estrategia de Retry
 
@@ -199,12 +211,12 @@ flowchart TD
 
 #### Detalles de Implementación
 
-| Aspecto | Implementación |
-|---------|----------------|
-| Cliente | `QdrantClient(path="./qdrant_db")` (file-based) |
-| Embeddings | `OpenAIEmbeddings(model="text-embedding-3-small")` |
+| Aspecto             | Implementación                                        |
+| ------------------- | ----------------------------------------------------- |
+| Cliente             | `QdrantClient(path="./qdrant_db")` (file-based)       |
+| Embeddings          | `OpenAIEmbeddings(model="text-embedding-3-small")`    |
 | Detección existente | `client.get_collection()` → `ValueError` si no existe |
-| Creación | `QdrantVectorStore.from_documents()` |
+| Creación            | `QdrantVectorStore.from_documents()`                  |
 
 ---
 
@@ -271,12 +283,12 @@ def run_chat_loop(rag_chain, memory):
         if query.lower() == "clear":
             memory.clear()
             continue
-        
+
         memory.add_user_message(query)
         full_response = ""
         for chunk in rag_chain.stream(query):
             full_response += chunk
-        
+
         # Separar respuesta de sugerencias
         # Imprimir con efecto typing
         memory.add_ai_message(main_answer)
@@ -329,12 +341,12 @@ AIMessage(content: str)
 
 ### 3.3 Vector Store Schema (Qdrant)
 
-| Campo | Tipo | Descripción |
-|-------|------|-------------|
-| `id` | UUID | Identificador único del vector |
-| `vector` | float[1536] | Embedding text-embedding-3-small |
-| `payload.page_content` | string | Texto del chunk |
-| `payload.metadata` | dict | Metadatos (title, start_index) |
+| Campo                  | Tipo        | Descripción                      |
+| ---------------------- | ----------- | -------------------------------- |
+| `id`                   | UUID        | Identificador único del vector   |
+| `vector`               | float[1536] | Embedding text-embedding-3-small |
+| `payload.page_content` | string      | Texto del chunk                  |
+| `payload.metadata`     | dict        | Metadatos (title, start_index)   |
 
 ---
 
@@ -342,10 +354,10 @@ AIMessage(content: str)
 
 ### 4.1 OpenAI API
 
-| Servicio | Modelo | Uso |
-|----------|--------|-----|
-| Embeddings | `text-embedding-3-small` | Vectorización de chunks y queries |
-| Chat Completions | `gpt-4o` | Generación de respuestas |
+| Servicio         | Modelo                   | Uso                               |
+| ---------------- | ------------------------ | --------------------------------- |
+| Embeddings       | `text-embedding-3-small` | Vectorización de chunks y queries |
+| Chat Completions | `gpt-4o`                 | Generación de respuestas          |
 
 **Configuración:**
 
@@ -359,11 +371,11 @@ ChatOpenAI(model="gpt-4o", temperature=0, streaming=True)
 
 ### 4.2 IMSDB.com
 
-| Script | URL |
-|--------|-----|
-| A New Hope | `https://www.imsdb.com/scripts/Star-Wars-A-New-Hope.html` |
+| Script              | URL                                                                    |
+| ------------------- | ---------------------------------------------------------------------- |
+| A New Hope          | `https://www.imsdb.com/scripts/Star-Wars-A-New-Hope.html`              |
 | Empire Strikes Back | `https://www.imsdb.com/scripts/Star-Wars-The-Empire-Strikes-Back.html` |
-| Return of the Jedi | `https://www.imsdb.com/scripts/Star-Wars-Return-of-the-Jedi.html` |
+| Return of the Jedi  | `https://www.imsdb.com/scripts/Star-Wars-Return-of-the-Jedi.html`      |
 
 **Parsing:** BeautifulSoup extrae contenido de `<pre>` tags.
 
@@ -373,8 +385,8 @@ ChatOpenAI(model="gpt-4o", temperature=0, streaming=True)
 
 ### 5.1 Requeridas
 
-| Variable | Descripción | Ejemplo |
-|----------|-------------|---------|
+| Variable         | Descripción       | Ejemplo       |
+| ---------------- | ----------------- | ------------- |
 | `OPENAI_API_KEY` | API key de OpenAI | `sk-proj-...` |
 
 ### 5.2 Archivo .env.example
@@ -401,12 +413,12 @@ def validate_environment() -> bool:
 
 ### 6.1 Persistencia de Vector Store
 
-| Aspecto | Estrategia |
-|---------|------------|
-| Ubicación | `./qdrant_db/` |
-| Formato | SQLite (Qdrant file-based) |
-| Invalidación | Manual (borrar directorio) |
-| Tamaño estimado | ~5-10MB por script |
+| Aspecto         | Estrategia                 |
+| --------------- | -------------------------- |
+| Ubicación       | `./qdrant_db/`             |
+| Formato         | SQLite (Qdrant file-based) |
+| Invalidación    | Manual (borrar directorio) |
+| Tamaño estimado | ~5-10MB por script         |
 
 ### 6.2 Streaming de Respuestas
 
@@ -422,18 +434,18 @@ for chunk in rag_chain.stream(query):
 
 ### 7.1 Categorizacion
 
-| Tipo | Manejo | Retry |
-|------|--------|-------|
-| `Timeout` | Log + retry | Sí (3x) |
-| `ConnectionError` | Log + retry | Sí (3x) |
-| `HTTPError 4xx` | Raise inmediato | No |
-| `HTTPError 5xx` | Log + retry | Sí (3x) |
-| `ValueError` (no `<pre>`) | Raise inmediato | No |
-| `RuntimeError` | Log + exit | No |
-| `OpenAI 429 Quota` | Mensaje descriptivo + URL billing | No |
-| `OpenAI 401 Invalid Key` | Mensaje descriptivo + URL api-keys | No |
-| `OpenAI Rate Limit` | Mensaje descriptivo | No |
-| `Context Length Exceeded` | Sugerir `clear` | No |
+| Tipo                      | Manejo                             | Retry   |
+| ------------------------- | ---------------------------------- | ------- |
+| `Timeout`                 | Log + retry                        | Sí (3x) |
+| `ConnectionError`         | Log + retry                        | Sí (3x) |
+| `HTTPError 4xx`           | Raise inmediato                    | No      |
+| `HTTPError 5xx`           | Log + retry                        | Sí (3x) |
+| `ValueError` (no `<pre>`) | Raise inmediato                    | No      |
+| `RuntimeError`            | Log + exit                         | No      |
+| `OpenAI 429 Quota`        | Mensaje descriptivo + URL billing  | No      |
+| `OpenAI 401 Invalid Key`  | Mensaje descriptivo + URL api-keys | No      |
+| `OpenAI Rate Limit`       | Mensaje descriptivo                | No      |
+| `Context Length Exceeded` | Sugerir `clear`                    | No      |
 
 ### 7.2 Mensajes de Error al Usuario
 
@@ -479,7 +491,7 @@ Conversation History:
 Context from Scripts:
 {context}
 
-Question: 
+Question:
 {question}
 
 Answer:"""
@@ -487,11 +499,11 @@ Answer:"""
 
 ### 8.2 Placeholders
 
-| Placeholder | Fuente | Descripción |
-|-------------|--------|-------------|
-| `{chat_history}` | `ConversationMemory.get_history_string()` | Últimos 5 turnos |
-| `{context}` | `retriever.invoke(query)` | 15 chunks relevantes |
-| `{question}` | Input del usuario | Pregunta actual |
+| Placeholder      | Fuente                                    | Descripción          |
+| ---------------- | ----------------------------------------- | -------------------- |
+| `{chat_history}` | `ConversationMemory.get_history_string()` | Últimos 5 turnos     |
+| `{context}`      | `retriever.invoke(query)`                 | 15 chunks relevantes |
+| `{question}`     | Input del usuario                         | Pregunta actual      |
 
 ---
 
@@ -499,11 +511,11 @@ Answer:"""
 
 ### 9.1 Estructura de Tests
 
-| Archivo | Tipo | Descripción |
-|---------|------|-------------|
-| [test_config.py](file:///Users/salo/dev/langchain/star-wars-expert/tests/test_config.py) | Unit | Validación de constantes |
-| [test_loader.py](file:///Users/salo/dev/langchain/star-wars-expert/tests/test_loader.py) | Unit | HTTP + parsing con mocks |
-| [test_rag_integration.py](file:///Users/salo/dev/langchain/star-wars-expert/tests/test_rag_integration.py) | E2E | RAG completo con API |
+| Archivo                                                                                                    | Tipo | Descripción              |
+| ---------------------------------------------------------------------------------------------------------- | ---- | ------------------------ |
+| [test_config.py](file:///Users/salo/dev/langchain/star-wars-expert/tests/test_config.py)                   | Unit | Validación de constantes |
+| [test_loader.py](file:///Users/salo/dev/langchain/star-wars-expert/tests/test_loader.py)                   | Unit | HTTP + parsing con mocks |
+| [test_rag_integration.py](file:///Users/salo/dev/langchain/star-wars-expert/tests/test_rag_integration.py) | E2E  | RAG completo con API     |
 
 ### 9.2 Ejecución
 
@@ -534,23 +546,23 @@ markers = [
 
 ### 10.1 Runtime
 
-| Paquete | Versión | Propósito |
-|---------|---------|-----------|
-| `langchain` | ≥1.2.6 | Framework RAG |
-| `langchain-openai` | ≥1.1.7 | Integración OpenAI |
-| `langchain-qdrant` | ≥1.1.0 | Integración Qdrant |
-| `langchain-text-splitters` | ≥1.1.0 | Chunking de texto |
-| `qdrant-client` | ≥1.16.2 | Cliente vector store |
-| `beautifulsoup4` | ≥4.14.3 | Parsing HTML |
-| `python-dotenv` | ≥1.0.0 | Variables de entorno |
-| `rich` | ≥13.7.0 | Terminal UI avanzado |
-| `colorama` | ≥0.4.6 | Colores cross-platform |
+| Paquete                    | Versión | Propósito              |
+| -------------------------- | ------- | ---------------------- |
+| `langchain`                | ≥1.2.6  | Framework RAG          |
+| `langchain-openai`         | ≥1.1.7  | Integración OpenAI     |
+| `langchain-qdrant`         | ≥1.1.0  | Integración Qdrant     |
+| `langchain-text-splitters` | ≥1.1.0  | Chunking de texto      |
+| `qdrant-client`            | ≥1.16.2 | Cliente vector store   |
+| `beautifulsoup4`           | ≥4.14.3 | Parsing HTML           |
+| `python-dotenv`            | ≥1.0.0  | Variables de entorno   |
+| `rich`                     | ≥13.7.0 | Terminal UI avanzado   |
+| `colorama`                 | ≥0.4.6  | Colores cross-platform |
 
 ### 10.2 Development
 
-| Paquete | Versión | Propósito |
-|---------|---------|-----------|
-| `pytest` | ≥9.0.2 | Testing framework |
+| Paquete       | Versión | Propósito         |
+| ------------- | ------- | ----------------- |
+| `pytest`      | ≥9.0.2  | Testing framework |
 | `pytest-mock` | ≥3.15.1 | Mocking utilities |
 
 ---
@@ -588,13 +600,13 @@ uv run main.py
 
 ## 12. Limitaciones Conocidas
 
-| Área | Limitación |
-|------|------------|
-| Rate Limits | Sin manejo de HTTP 429 de OpenAI |
-| Token Limits | Sin validación de longitud de contexto |
-| Escalabilidad | Single-user, no concurrente |
-| Persistencia | Historial no persiste entre sesiones |
-| Observabilidad | Sin logging estructurado ni métricas |
+| Área           | Limitación                             |
+| -------------- | -------------------------------------- |
+| Rate Limits    | Sin manejo de HTTP 429 de OpenAI       |
+| Token Limits   | Sin validación de longitud de contexto |
+| Escalabilidad  | Single-user, no concurrente            |
+| Persistencia   | Historial no persiste entre sesiones   |
+| Observabilidad | Sin logging estructurado ni métricas   |
 
 ---
 

@@ -32,6 +32,7 @@ Scripts are chunked at 2500 chars with 250 overlap. High k value (15 chunks) ens
 ### Conversation Memory
 
 Uses `ConversationMemory` class in [chat.py](../chat.py) to maintain context across exchanges:
+
 - Stores last `MEMORY_K=5` exchanges (configurable)
 - Enables pronoun resolution ("What happens to him?")
 - Truncates long messages to save context window
@@ -90,17 +91,17 @@ The `PROMPT_TEMPLATE` in [config.py](../config.py) is critical:
 
 All constants live in [config.py](../config.py):
 
-| Constant | Description |
-|----------|-------------|
-| `LLM_MODEL` | OpenAI model (gpt-4o) |
-| `EMBEDDING_MODEL` | Embedding model (text-embedding-3-small) |
-| `RETRIEVER_K` | Number of chunks to retrieve (15) |
-| `MEMORY_K` | Conversation turns to remember (5) |
-| `CHUNK_SIZE` / `CHUNK_OVERLAP` | Text splitter settings |
-| `TYPING_DELAY` | Typing effect speed (0.03s) |
-| `SPINNER_FRAMES` | Animation frames for progress spinner |
-| `STAR_WARS_SCRIPTS` | List of script URLs |
-| `PROMPT_TEMPLATE` | System prompt |
+| Constant                       | Description                              |
+| ------------------------------ | ---------------------------------------- |
+| `LLM_MODEL`                    | OpenAI model (gpt-4o)                    |
+| `EMBEDDING_MODEL`              | Embedding model (text-embedding-3-small) |
+| `RETRIEVER_K`                  | Number of chunks to retrieve (15)        |
+| `MEMORY_K`                     | Conversation turns to remember (5)       |
+| `CHUNK_SIZE` / `CHUNK_OVERLAP` | Text splitter settings                   |
+| `TYPING_DELAY`                 | Typing effect speed (0.03s)              |
+| `SPINNER_FRAMES`               | Animation frames for progress spinner    |
+| `STAR_WARS_SCRIPTS`            | List of script URLs                      |
+| `PROMPT_TEMPLATE`              | System prompt                            |
 
 ## Common Modification Scenarios
 
@@ -125,6 +126,46 @@ Modify `MEMORY_K` in [config.py](../config.py) to change how many exchanges are 
 - **IMSDB (imsdb.com)**: Scripts scraped from `<pre>` tags. If site structure changes, update BeautifulSoup selector in [loader.py](../loader.py).
 - **OpenAI API**: Both embeddings and chat completions. Rate limits apply to initial indexing.
 - **Qdrant**: Local file-based client. No server required, but `./qdrant_db` grows ~5-10MB per script.
+
+## CI/CD Pipeline
+
+The project uses GitHub Actions for continuous integration (`.github/workflows/ci.yml`):
+
+### Pipeline Structure
+
+```
+Push/PR to main
+    │
+    ├─► Lint Job (Ruff)
+    │     ├─ ruff check .
+    │     └─ ruff format --check .
+    │
+    └─► Test Job (pytest)
+          └─ pytest tests/ -m "not integration" -v
+```
+
+### Key Details
+
+- **Lint**: Uses Ruff for linting (E, F, I, UP, B, SIM rules) and format checking
+- **Test**: Runs unit tests only (no integration tests in CI - they require API keys)
+- **Dependencies**: Managed by uv with `--frozen` flag for reproducibility
+- **Python version**: 3.12
+
+### Running Lint Locally
+
+```bash
+# Check for issues
+uv run ruff check .
+
+# Auto-fix issues
+uv run ruff check . --fix
+
+# Check formatting
+uv run ruff format --check .
+
+# Apply formatting
+uv run ruff format .
+```
 
 ## Testing
 
